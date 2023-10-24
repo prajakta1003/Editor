@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+model User {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  email    String @unique
+  isAdmin  Boolean
+  contact  String
+  password String
+  userDetails UserDetails[]
+  workDetails Work[]
+}
+model UserDetails {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  user      User   @relation(fields:[userId],references: [id])
+  userId    String @db.ObjectId
+  country   String
+  github    String
+  roles     String
+  desc      String
+}
+model Work {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  user      User   @relation(fields:[userId],references: [id])
+  userId    String @db.ObjectId
+  position   String
+  company    String
+  start     String
+  end      String
+}
+
+model Question {
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  number     Int
+  title      String
+  description String
+  template   Template[]
+  testCases  TestCase[]
+}
+
+model Template {
+  id      String    @id @default(auto()) @map("_id") @db.ObjectId
+  language String
+  code     String
+  question Question @relation(fields: [questionId], references: [id])
+  questionId String @db.ObjectId
+}
+
+model TestCase {
+  id       String      @id @default(auto()) @map("_id") @db.ObjectId
+  input    String
+  output   String
+  question Question @relation(fields: [questionId], references: [id])
+  questionId String @db.ObjectId
+}
+model Code {
+  id       String      @id @default(auto()) @map("_id") @db.ObjectId
+  language  String
+  code    String
+  submitted  Boolean
+  passedTest Int?
+  runCount   Int  @default(0)
+  questionId  String @db.ObjectId
+  authorId   String  @db.ObjectId
+  executionTime  Float   
+}
